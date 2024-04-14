@@ -1,0 +1,11 @@
+PATCH http://localhost:8080/banner/1
+Content-Type: application/json
+Token: admin_token
+
+{
+  "content": {
+    "title": "some_title8",
+    "text": "some_text3",
+    "url": "some_url15"
+  }
+}

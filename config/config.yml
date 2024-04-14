@@ -1,0 +1,16 @@
+app:
+  name: 'banner'
+  version: '1.0.0'
+
+HTTPServer:
+  host: 'localhost'
+  port: '8080'
+
+logger:
+  log_level: 'debug'
+
+postgres:
+  pool_max: 10
+
+
+

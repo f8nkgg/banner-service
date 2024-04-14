@@ -1,0 +1,14 @@
+POST http://localhost:8080/banner
+Content-Type: application/json
+Token: admin_token
+
+{
+  "tag_ids": [8],
+  "feature_id": 123,
+  "content": {
+    "title": "some_title",
+    "text": "some_text",
+    "url": "some_url"
+  },
+  "is_active": true
+}
