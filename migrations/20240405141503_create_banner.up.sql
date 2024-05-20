@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS banners (
 
 CREATE INDEX IF NOT EXISTS idx_tag_ids ON banners USING GIN (tag_ids);
 CREATE INDEX IF NOT EXISTS idx_feature_id ON banners (feature_id);
-CREATE INDEX IF NOT EXISTS idx_is_active ON banners (id) WHERE is_active = true;
 
 CREATE TABLE IF NOT EXISTS banners_history (
                                                id integer,
