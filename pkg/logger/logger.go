@@ -40,6 +40,7 @@ func New(level string) Logger {
 	skipFrameCount := 3
 	var z zerolog.Logger
 	if l == zerolog.DebugLevel {
+
 		z = zerolog.New(os.Stdout).Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}).
 			With().
 			Timestamp().
