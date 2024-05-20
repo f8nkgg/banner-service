@@ -95,7 +95,7 @@ func (h *BannerController) getBanners(c *gin.Context) {
 	limit, _ := strconv.ParseInt(c.DefaultQuery("limit", "0"), 10, 32)
 	offset, _ := strconv.ParseInt(c.DefaultQuery("offset", "0"), 10, 32)
 
-	var featureIDPtr, tagIDPtr, limitPtr, offsetPtr *int32
+	var featureIDPtr, tagIDPtr, limitPtr *int32
 	if featureID != 0 {
 		featureIDConverted := int32(featureID)
 		featureIDPtr = &featureIDConverted
@@ -108,11 +108,8 @@ func (h *BannerController) getBanners(c *gin.Context) {
 		limitConverted := int32(limit)
 		limitPtr = &limitConverted
 	}
-	if offset != 0 {
-		offsetConverted := int32(offset)
-		offsetPtr = &offsetConverted
-	}
-	banners, err := h.bannerService.GetBanners(c.Request.Context(), featureIDPtr, tagIDPtr, limitPtr, offsetPtr)
+
+	banners, err := h.bannerService.GetBanners(c.Request.Context(), featureIDPtr, tagIDPtr, limitPtr, int32(offset))
 	if err != nil {
 		h.l.Error("Failed to get banners: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Внутренняя ошибка сервера"})

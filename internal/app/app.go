@@ -11,7 +11,6 @@ import (
 	"banner/pkg/logger"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
@@ -21,6 +20,7 @@ import (
 func Run(cfg *config.Config) {
 	l := logger.New(cfg.Log.Level)
 	pgURL, _ := os.LookupEnv("PG_URL")
+	os.Setenv("PG_URL", "postgres://postgres:postgres@localhost:5433/banner?sslmode=disable")
 	pg, err := postgres.New(pgURL, cfg.PG.PoolMax, cfg.PG.ConnAttempts, cfg.PG.ConnTimeout)
 	if err != nil {
 		l.Fatal(fmt.Errorf("app - Run - postgres.New: %v", err))

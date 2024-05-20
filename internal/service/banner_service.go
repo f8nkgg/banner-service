@@ -33,7 +33,7 @@ func (s *BannerService) GetForUser(ctx context.Context, tagID, featureID int32, 
 	s.cache.Set(tagID, featureID, content, s.cacheTTL)
 	return content, err
 }
-func (s *BannerService) GetBanners(ctx context.Context, featureID, tagID, limit, offset *int32) ([]*entity.FilteredBanner, error) {
+func (s *BannerService) GetBanners(ctx context.Context, featureID, tagID, limit *int32, offset int32) ([]*entity.FilteredBanner, error) {
 	return s.bannerRepository.GetBannersWithOptionalFilters(ctx, featureID, tagID, limit, offset)
 }
 func (s *BannerService) Delete(ctx context.Context, id int32) error {
