@@ -71,7 +71,7 @@ func (r *BannerRepository) GetBannerByTagsAndFeatureIDForUser(ctx context.Contex
 	sql, args, err := r.db.Builder.
 		Select("content").
 		From("banners").
-		Where("$1 = ANY(tag_ids) AND feature_id = $2 AND (CASE WHEN $3 THEN true ELSE is_active = true END)", tagID, featureID, isActiveParam).
+		Where("tag_ids @> ARRAY[$1] AND feature_id = $2 AND ($3 OR is_active = true)", tagID, featureID, isActiveParam).
 		Limit(1).
 		ToSql()
 	if err != nil {
@@ -88,12 +88,12 @@ func (r *BannerRepository) GetBannerByTagsAndFeatureIDForUser(ctx context.Contex
 	}
 	return content, nil
 }
-func (r *BannerRepository) GetBannersWithOptionalFilters(ctx context.Context, featureID, tagID, limit, offset *int32) ([]*entity.FilteredBanner, error) {
+func (r *BannerRepository) GetBannersWithOptionalFilters(ctx context.Context, featureID, tagID, limit *int32, offset int32) ([]*entity.FilteredBanner, error) {
 	sql, args, err := r.db.Builder.
 		Select("*").
 		From("banners").
-		Where("($1::integer IS NULL OR feature_id = $1) AND ($2::integer IS NULL OR $2 = ANY(tag_ids))", featureID, tagID).
-		Suffix("LIMIT $3 OFFSET COALESCE($4, 0)", limit, offset).
+		Where("($1::integer IS NULL OR feature_id = $1) AND ($2::integer IS NULL OR tag_ids @> ARRAY[$2])", featureID, tagID).
+		Suffix("LIMIT $3 OFFSET $4", limit, offset).
 		ToSql()
 	if err != nil {
 		return nil, err
