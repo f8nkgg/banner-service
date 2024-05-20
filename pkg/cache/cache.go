@@ -22,7 +22,7 @@ type MemoryCache struct {
 	sub             int
 	len             int
 	EvictionChannel chan<- Eviction
-	sync.Mutex
+	mu              sync.Mutex
 }
 
 type cacheEntry struct {
@@ -38,25 +38,35 @@ type listEntry struct {
 }
 
 func NewMemoryCache(capacity, sub int) *MemoryCache {
-	return &MemoryCache{
+	c := &MemoryCache{
 		values:   make(map[compositeKey]*cacheEntry),
 		freqs:    list.New(),
 		capacity: capacity,
 		sub:      sub,
 	}
+	go c.setTtlTimer()
+	return c
 }
+func (c *MemoryCache) setTtlTimer() {
+	for {
+		c.mu.Lock()
+		for key, entry := range c.values {
+			if entry.isExpired() {
+				delete(c.values, key)
+				c.removeEntry(entry.freqNode, entry)
+				c.len--
 
+			}
+		}
+		c.mu.Unlock()
+		<-time.After(time.Second)
+	}
+}
 func (c *MemoryCache) Get(key1, key2 int32) (map[string]interface{}, error) {
-	c.Lock()
-	defer c.Unlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	key := compositeKey{part1: key1, part2: key2}
 	if e, ok := c.values[key]; ok {
-		if e.isExpired() {
-			delete(c.values, key)
-			c.removeEntry(e.freqNode, e)
-			c.len--
-			return nil, errors.New("cache expired")
-		}
 		c.increment(e)
 		return e.value, nil
 	}
@@ -66,8 +76,8 @@ func (e *cacheEntry) isExpired() bool {
 	return time.Now().After(e.expiry)
 }
 func (c *MemoryCache) Set(key1, key2 int32, value map[string]interface{}, ttl time.Duration) {
-	c.Lock()
-	defer c.Unlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	key := compositeKey{part1: key1, part2: key2}
 	if e, exists := c.values[key]; exists {
 		e.value = value
